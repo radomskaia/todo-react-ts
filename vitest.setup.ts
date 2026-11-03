@@ -18,4 +18,5 @@ if (HTMLDialogElement.prototype.showModal === undefined) {
 
 afterEach(() => {
   cleanup();
+  localStorage.clear();
 });
