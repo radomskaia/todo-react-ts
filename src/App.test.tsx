@@ -37,6 +37,10 @@ async function addTodo(user: ReturnType<typeof userEvent.setup>, title: string) 
   await user.click(getAddButton());
 }
 
+function getFilterButton(label: string) {
+  return screen.getByRole('button', { name: new RegExp(`^${label} \\d+$`) });
+}
+
 function getTodoTitles() {
   return screen
     .queryAllByRole('checkbox')
@@ -148,9 +152,9 @@ describe('App', () => {
     await addTodo(user, 'Выполненная');
     await user.click(screen.getByRole('checkbox', { name: 'Выполненная' }));
 
-    const allFilter = screen.getByRole('button', { name: 'Все' });
-    const activeFilter = screen.getByRole('button', { name: 'Активные' });
-    const completedFilter = screen.getByRole('button', { name: 'Выполненные' });
+    const allFilter = getFilterButton('Все');
+    const activeFilter = getFilterButton('Активные');
+    const completedFilter = getFilterButton('Выполненные');
 
     expect(allFilter).toHaveAttribute('aria-pressed', 'true');
 
@@ -173,12 +177,12 @@ describe('App', () => {
     const { user } = renderApp();
 
     await addTodo(user, 'Задача');
-    await user.click(screen.getByRole('button', { name: 'Активные' }));
+    await user.click(getFilterButton('Активные'));
     await user.click(screen.getByRole('checkbox', { name: 'Задача' }));
 
     expect(screen.getByText('Активных задач нет')).toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Выполненные' }));
+    await user.click(getFilterButton('Выполненные'));
 
     expect(getTodoTitles()).toEqual(['Задача']);
   });
@@ -187,7 +191,7 @@ describe('App', () => {
     const { user } = renderApp();
 
     await addTodo(user, 'Задача');
-    await user.click(screen.getByRole('button', { name: 'Выполненные' }));
+    await user.click(getFilterButton('Выполненные'));
 
     expect(screen.getByText('Выполненных задач нет')).toBeInTheDocument();
   });
@@ -278,13 +282,13 @@ describe('App', () => {
     it('is offered only for all todos', async () => {
       const { user } = renderApp();
 
-      await user.click(screen.getByRole('button', { name: 'Активные' }));
+      await user.click(getFilterButton('Активные'));
 
       expect(
         screen.queryByRole('combobox', { name: 'Сортировка' }),
       ).not.toBeInTheDocument();
 
-      await user.click(screen.getByRole('button', { name: 'Все' }));
+      await user.click(getFilterButton('Все'));
 
       expect(getSortSelect()).toBeInTheDocument();
     });
@@ -293,8 +297,8 @@ describe('App', () => {
       const { user } = renderApp();
 
       await user.selectOptions(getSortSelect(), 'По алфавиту');
-      await user.click(screen.getByRole('button', { name: 'Выполненные' }));
-      await user.click(screen.getByRole('button', { name: 'Все' }));
+      await user.click(getFilterButton('Выполненные'));
+      await user.click(getFilterButton('Все'));
 
       expect(getSortSelect()).toHaveValue('alphabet');
     });
@@ -354,5 +358,17 @@ describe('App', () => {
       expect(screen.getByRole('heading', { name: 'Todo list' })).toBeInTheDocument();
       expect(localStorage.getItem(localeStorageKey)).toBeNull();
     });
+  });
+
+  it('shows how many todos each filter holds', async () => {
+    const { user } = renderApp();
+
+    await addTodo(user, 'Первая');
+    await addTodo(user, 'Вторая');
+    await user.click(screen.getByRole('checkbox', { name: 'Первая' }));
+
+    expect(getFilterButton('Все')).toHaveTextContent('2');
+    expect(getFilterButton('Активные')).toHaveTextContent('1');
+    expect(getFilterButton('Выполненные')).toHaveTextContent('1');
   });
 });

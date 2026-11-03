@@ -5,10 +5,11 @@ import styles from './TodoFilters.module.css';
 
 interface TodoFiltersProps {
   value: TodoFilter;
+  counts: Record<TodoFilter, number>;
   onChange: (filter: TodoFilter) => void;
 }
 
-export function TodoFilters({ value, onChange }: TodoFiltersProps) {
+export function TodoFilters({ value, counts, onChange }: TodoFiltersProps) {
   const { t } = useTranslation();
 
   return (
@@ -27,7 +28,7 @@ export function TodoFilters({ value, onChange }: TodoFiltersProps) {
             onChange(filter);
           }}
         >
-          {t(`filters.${filter}`)}
+          {t(`filters.${filter}`)} <span className={styles.count}>{counts[filter]}</span>
         </button>
       ))}
     </div>

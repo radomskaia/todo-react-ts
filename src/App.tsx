@@ -33,6 +33,11 @@ export function App() {
         <TodoForm onAdd={addTodo} />
         <TodoFilters
           value={filter}
+          counts={{
+            all: todos.length,
+            active: activeCount,
+            completed: todos.length - activeCount,
+          }}
           onChange={setFilter}
         />
         {filter === 'all' && (
