@@ -318,6 +318,139 @@ describe('App', () => {
     });
   });
 
+  describe('keyboard', () => {
+    function getCheckbox(title: string) {
+      return screen.getByRole('checkbox', { name: title });
+    }
+
+    async function renderWithTodos(...titles: string[]) {
+      const view = renderApp();
+
+      for (const title of titles) {
+        await addTodo(view.user, title);
+      }
+
+      await view.user.click(document.body);
+
+      return view;
+    }
+
+    it('focuses the new task field with / and N, in any keyboard layout', async () => {
+      const { user } = renderApp();
+
+      await user.keyboard('/');
+
+      expect(getInput()).toHaveFocus();
+      expect(getInput()).toHaveValue('');
+
+      getInput().blur();
+      await user.keyboard('[KeyN]');
+
+      expect(getInput()).toHaveFocus();
+    });
+
+    it('types / and N as text while the field is focused', async () => {
+      const { user } = renderApp();
+
+      await user.type(getInput(), 'n/N');
+
+      expect(getInput()).toHaveValue('n/N');
+    });
+
+    it('clears the field with Escape, then leaves it', async () => {
+      const { user } = renderApp();
+
+      await user.type(getInput(), 'Черновик');
+      await user.keyboard('{Escape}');
+
+      expect(getInput()).toHaveValue('');
+      expect(getInput()).toHaveFocus();
+
+      await user.keyboard('{Escape}');
+
+      expect(getInput()).not.toHaveFocus();
+    });
+
+    it('moves between the field and todos with the arrow keys', async () => {
+      const { user } = await renderWithTodos('Первая', 'Вторая', 'Третья');
+
+      await user.click(getInput());
+      await user.keyboard('{ArrowDown}');
+
+      expect(getCheckbox('Первая')).toHaveFocus();
+
+      await user.keyboard('{ArrowDown}{ArrowDown}{ArrowDown}');
+
+      expect(getCheckbox('Третья')).toHaveFocus();
+
+      await user.keyboard('{ArrowUp}');
+
+      expect(getCheckbox('Вторая')).toHaveFocus();
+
+      await user.keyboard('{ArrowUp}{ArrowUp}');
+
+      expect(getInput()).toHaveFocus();
+    });
+
+    it('jumps to the first and last todo with Home and End', async () => {
+      const { user } = await renderWithTodos('Первая', 'Вторая', 'Третья');
+
+      await user.click(getInput());
+      await user.keyboard('{ArrowDown}{End}');
+
+      expect(getCheckbox('Третья')).toHaveFocus();
+
+      await user.keyboard('{Home}');
+
+      expect(getCheckbox('Первая')).toHaveFocus();
+    });
+
+    it('removes the focused todo with Delete and focuses the next one', async () => {
+      const { user } = await renderWithTodos('Первая', 'Вторая', 'Третья');
+
+      await user.click(getInput());
+      await user.keyboard('{ArrowDown}{Delete}');
+
+      expect(getTodoTitles()).toEqual(['Вторая', 'Третья']);
+      expect(getCheckbox('Вторая')).toHaveFocus();
+
+      await user.keyboard('{End}{Backspace}');
+
+      expect(getTodoTitles()).toEqual(['Вторая']);
+      expect(getCheckbox('Вторая')).toHaveFocus();
+
+      await user.keyboard('{Delete}');
+
+      expect(getTodoTitles()).toEqual([]);
+      expect(getInput()).toHaveFocus();
+    });
+
+    it('keeps focus on a todo that moves when it is checked with active first', async () => {
+      const { user } = await renderWithTodos('Первая', 'Вторая');
+
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: 'Сортировка' }),
+        'Сначала активные',
+      );
+      getCheckbox('Первая').focus();
+      await user.keyboard(' ');
+
+      expect(getTodoTitles()).toEqual(['Вторая', 'Первая']);
+      expect(getCheckbox('Первая')).toHaveFocus();
+    });
+
+    it('moves focus on when a checked todo leaves the filtered list', async () => {
+      const { user } = await renderWithTodos('Первая', 'Вторая');
+
+      await user.click(getFilterButton('Активные'));
+      getCheckbox('Первая').focus();
+      await user.keyboard(' ');
+
+      expect(getTodoTitles()).toEqual(['Вторая']);
+      expect(getCheckbox('Вторая')).toHaveFocus();
+    });
+  });
+
   describe('language', () => {
     it('switches the interface to English and back', async () => {
       const { user } = renderApp();

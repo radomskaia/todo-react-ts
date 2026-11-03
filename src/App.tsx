@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 import { useTranslation } from '@/i18n/i18nContext.ts';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher.tsx';
@@ -6,7 +6,7 @@ import { ThemeSwitcher } from '@/theme/ThemeSwitcher.tsx';
 import { filterTodos, sortTodos, type TodoFilter } from '@/todos/todo.ts';
 import { TodoFilters } from '@/todos/TodoFilters.tsx';
 import { TodoForm } from '@/todos/TodoForm.tsx';
-import { TodoList } from '@/todos/TodoList.tsx';
+import { TodoList, type TodoListHandle } from '@/todos/TodoList.tsx';
 import { TodoSortSelect } from '@/todos/TodoSortSelect.tsx';
 import { useTodos } from '@/todos/useTodos.ts';
 import { useTodoSort } from '@/todos/useTodoSort.ts';
@@ -18,6 +18,8 @@ export function App() {
   const { todos, addTodo, toggleTodo, removeTodo } = useTodos();
   const [filter, setFilter] = useState<TodoFilter>('all');
   const { sort, setSort } = useTodoSort();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const listRef = useRef<TodoListHandle>(null);
   const activeCount = todos.filter((todo) => !todo.completed).length;
   const visibleTodos =
     filter === 'all' ? sortTodos(todos, sort, locale) : filterTodos(todos, filter);
@@ -30,7 +32,13 @@ export function App() {
       </div>
       <h1 className={styles.heading}>{t('app.title')}</h1>
       <section className={styles.card}>
-        <TodoForm onAdd={addTodo} />
+        <TodoForm
+          inputRef={inputRef}
+          onAdd={addTodo}
+          onArrowDown={() => {
+            listRef.current?.focusFirst();
+          }}
+        />
         <TodoFilters
           value={filter}
           counts={{
@@ -49,10 +57,14 @@ export function App() {
           </div>
         )}
         <TodoList
+          ref={listRef}
           todos={visibleTodos}
           emptyText={t(`empty.${filter}`)}
           onToggle={toggleTodo}
           onRemove={removeTodo}
+          onExit={() => {
+            inputRef.current?.focus();
+          }}
         />
         <p className={styles.footer}>{t('app.remaining', { count: activeCount })}</p>
       </section>
