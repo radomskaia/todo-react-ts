@@ -4,6 +4,15 @@
   padding: 3rem 1rem;
 }
 
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+
+  margin: 0 0 1rem;
+}
+
 .heading {
   margin: 0 0 1.5rem;
   font-size: 2rem;

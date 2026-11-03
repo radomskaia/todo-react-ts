@@ -1,0 +1,30 @@
+.wrapper {
+  position: relative;
+  display: inline-flex;
+}
+
+.wrapper::after {
+  pointer-events: none;
+  content: '';
+
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  transform: translateY(-70%) rotate(45deg);
+
+  width: 0.375rem;
+  height: 0.375rem;
+  border-right: 2px solid var(--color-muted);
+  border-bottom: 2px solid var(--color-muted);
+}
+
+.select {
+  cursor: pointer;
+
+  padding: 0.375rem 2rem 0.375rem 0.75rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+
+  appearance: none;
+  background: var(--color-surface);
+}

@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 
 import { App } from '@/App.tsx';
-import { t } from '@/i18n/t.ts';
+import { I18nProvider } from '@/i18n/I18nProvider.tsx';
 
 import './index.css';
 
@@ -12,10 +12,10 @@ if (!rootElement) {
   throw new Error('Root element #root not found');
 }
 
-document.title = t('app.title');
-
 createRoot(rootElement).render(
   <StrictMode>
-    <App />
+    <I18nProvider>
+      <App />
+    </I18nProvider>
   </StrictMode>,
 );

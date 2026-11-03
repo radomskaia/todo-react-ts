@@ -1,4 +1,4 @@
-import { t } from '@/i18n/t.ts';
+import { useTranslation } from '@/i18n/i18nContext.ts';
 
 import { type Todo } from './todo.ts';
 import styles from './TodoItem.module.css';
@@ -10,6 +10,8 @@ interface TodoItemProps {
 }
 
 export function TodoItem({ todo, onToggle, onRemove }: TodoItemProps) {
+  const { t } = useTranslation();
+
   return (
     <li className={todo.completed ? `${styles.item} ${styles.completed}` : styles.item}>
       <label className={styles.label}>

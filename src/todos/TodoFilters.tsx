@@ -1,4 +1,4 @@
-import { t } from '@/i18n/t.ts';
+import { useTranslation } from '@/i18n/i18nContext.ts';
 
 import { type TodoFilter, todoFilters } from './todo.ts';
 import styles from './TodoFilters.module.css';
@@ -9,6 +9,8 @@ interface TodoFiltersProps {
 }
 
 export function TodoFilters({ value, onChange }: TodoFiltersProps) {
+  const { t } = useTranslation();
+
   return (
     <div
       className={styles.filters}

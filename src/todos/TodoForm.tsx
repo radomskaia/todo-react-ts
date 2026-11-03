@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import { t } from '@/i18n/t.ts';
+import { useTranslation } from '@/i18n/i18nContext.ts';
 
 import styles from './TodoForm.module.css';
 
@@ -9,6 +9,7 @@ interface TodoFormProps {
 }
 
 export function TodoForm({ onAdd }: TodoFormProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState('');
   const canAdd = title.trim() !== '';
 

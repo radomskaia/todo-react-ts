@@ -1,17 +1,28 @@
 import { render, screen } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
-import { describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { I18nProvider } from '@/i18n/I18nProvider.tsx';
+import { localeStorageKey } from '@/i18n/locale.ts';
 import { todosStorageKey } from '@/todos/todoStorage.ts';
 
 import { App } from './App.tsx';
 
 function renderApp() {
   const user = userEvent.setup();
-  const { unmount } = render(<App />);
+  const { unmount } = render(
+    <I18nProvider>
+      <App />
+    </I18nProvider>,
+  );
 
   return { user, unmount };
 }
+
+// jsdom reports an English browser; the tests below read the Russian interface.
+beforeEach(() => {
+  localStorage.setItem(localeStorageKey, 'ru');
+});
 
 function getInput() {
   return screen.getByRole('textbox', { name: 'Новая задача' });
@@ -219,6 +230,48 @@ describe('App', () => {
       renderApp();
 
       expect(screen.getByRole('checkbox', { name: 'Из прошлого' })).toBeChecked();
+    });
+  });
+
+  describe('language', () => {
+    it('switches the interface to English and back', async () => {
+      const { user } = renderApp();
+
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Язык' }), 'English');
+
+      expect(screen.getByRole('heading', { name: 'Todo list' })).toBeInTheDocument();
+      expect(screen.getByRole('combobox', { name: 'Language' })).toHaveValue('en');
+      expect(document.documentElement).toHaveAttribute('lang', 'en');
+      expect(document.title).toBe('Todo list');
+
+      await user.selectOptions(
+        screen.getByRole('combobox', { name: 'Language' }),
+        'Русский',
+      );
+
+      expect(screen.getByRole('heading', { name: 'Список задач' })).toBeInTheDocument();
+      expect(document.documentElement).toHaveAttribute('lang', 'ru');
+    });
+
+    it('keeps the chosen language after a reload', async () => {
+      const { user, unmount } = renderApp();
+
+      await user.selectOptions(screen.getByRole('combobox', { name: 'Язык' }), 'English');
+      unmount();
+
+      renderApp();
+
+      expect(screen.getByRole('heading', { name: 'Todo list' })).toBeInTheDocument();
+    });
+
+    it('starts in the browser language when none was chosen', () => {
+      localStorage.removeItem(localeStorageKey);
+      vi.spyOn(navigator, 'languages', 'get').mockReturnValue(['en-GB', 'ru-RU']);
+
+      renderApp();
+
+      expect(screen.getByRole('heading', { name: 'Todo list' })).toBeInTheDocument();
+      expect(localStorage.getItem(localeStorageKey)).toBeNull();
     });
   });
 });

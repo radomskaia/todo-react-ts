@@ -16,4 +16,6 @@ export const ru = {
   'empty.completed': 'Выполненных задач нет',
 
   'todo.remove': 'Удалить задачу «{title}»',
+
+  'settings.language': 'Язык',
 } as const;

@@ -1,3 +1,5 @@
+import { readStorage, writeStorage } from '@/lib/storage.ts';
+
 import { type Todo } from './todo.ts';
 
 export const todosStorageKey = 'todo-react-ts:todos';
@@ -29,27 +31,23 @@ function isTodo(value: unknown): value is Todo {
 }
 
 export function loadTodos(): Todo[] {
+  const raw = readStorage(todosStorageKey);
+
+  if (raw === null) {
+    return [];
+  }
+
   try {
-    const raw = localStorage.getItem(todosStorageKey);
-
-    if (raw === null) {
-      return [];
-    }
-
     const parsed: unknown = JSON.parse(raw);
 
     return Array.isArray(parsed) ? parsed.filter((item) => isTodo(item)) : [];
   } catch (error) {
-    console.warn('Could not read saved todos', error);
+    console.warn('Could not parse saved todos', error);
 
     return [];
   }
 }
 
 export function saveTodos(todos: readonly Todo[]): void {
-  try {
-    localStorage.setItem(todosStorageKey, JSON.stringify(todos));
-  } catch (error) {
-    console.warn('Could not save todos', error);
-  }
+  writeStorage(todosStorageKey, JSON.stringify(todos));
 }
