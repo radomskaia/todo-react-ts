@@ -8,12 +8,6 @@
   padding: 3rem 1rem;
 }
 
-@media (width <= 30rem) {
-  .app {
-    padding-top: 1rem;
-  }
-}
-
 .toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -53,4 +47,24 @@
   margin: 0;
   font-size: 0.875rem;
   color: var(--color-muted);
+}
+
+@media (width <= 30rem) {
+  .app {
+    padding: 1rem 0.75rem;
+  }
+
+  .toolbar {
+    margin-bottom: 0.75rem;
+  }
+
+  .heading {
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+
+  .card {
+    gap: 0.75rem;
+    padding: 1rem;
+  }
 }

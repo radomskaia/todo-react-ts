@@ -41,9 +41,17 @@ export function TodoForm({ onAdd }: TodoFormProps) {
       <button
         className={styles.button}
         type="submit"
+        aria-label={t('form.submit')}
+        title={t('form.submit')}
         disabled={!canAdd}
       >
-        {t('form.submit')}
+        <svg
+          className={styles.buttonIcon}
+          viewBox="0 0 24 24"
+          aria-hidden="true"
+        >
+          <path d="M12 5v14M5 12h14" />
+        </svg>
       </button>
     </form>
   );
