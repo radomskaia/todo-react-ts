@@ -1,16 +1,59 @@
-# React + Vite
+# Список задач
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Простой список задач на React + TypeScript, собранный на Vite. Сервер не нужен: задачи хранятся в `localStorage` браузера.
 
-Currently, two official plugins are available:
+## Возможности
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Добавление задачи кнопкой «Добавить» или клавишей Enter. Пустую задачу или задачу из одних пробелов добавить нельзя, пробелы по краям обрезаются.
+- Отметка задачи выполненной и обратно. Выполненные задачи зачёркнуты и приглушены.
+- Удаление задачи.
+- Фильтры «Все», «Активные», «Выполненные» и счётчик оставшихся задач.
+- Сохранение в `localStorage`: задачи остаются после перезагрузки страницы. Повреждённые данные в хранилище не ломают приложение.
+- Светлая и тёмная тема по настройкам системы.
 
-## React Compiler
+## Запуск
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Нужен Node.js 24.15 или новее (версия для CI указана в `.nvmrc`).
 
-## Expanding the ESLint configuration
+```sh
+npm install
+npm run dev
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## Скрипты
+
+| Команда                 | Что делает                                       |
+| ----------------------- | ------------------------------------------------ |
+| `npm run dev`           | Dev-сервер Vite                                  |
+| `npm run build`         | Проверка типов и production-сборка в `dist`      |
+| `npm run preview`       | Локальный просмотр сборки                        |
+| `npm test`              | Тесты (Vitest + Testing Library)                 |
+| `npm run test:coverage` | Тесты с отчётом о покрытии                       |
+| `npm run typecheck`     | Проверка типов                                   |
+| `npm run lint`          | ESLint                                           |
+| `npm run stylelint`     | Stylelint для CSS                                |
+| `npm run format`        | Форматирование Prettier                          |
+| `npm run css:types`     | Генерация типов для CSS-модулей                  |
+| `npm run knip`          | Поиск неиспользуемых файлов, экспортов и пакетов |
+
+## Структура
+
+```
+src/
+  App.tsx              — экран: форма, фильтры, список, счётчик
+  i18n/
+    t.ts               — функция перевода t() с типизированными ключами
+    locales/ru.ts      — тексты интерфейса на русском
+  todos/
+    todo.ts            — тип задачи и фильтрация
+    todoStorage.ts     — чтение и запись в localStorage
+    useTodos.ts        — состояние задач и операции над ними
+    TodoForm.tsx       — поле ввода и кнопка «Добавить»
+    TodoFilters.tsx    — переключатель фильтров
+    TodoList.tsx       — список или сообщение о пустом списке
+    TodoItem.tsx       — задача: чекбокс, название, удаление
+```
+
+Все тексты интерфейса берутся через `t('ключ', { параметры })` из `src/i18n/locales/ru.ts`. TypeScript проверяет и ключ, и набор `{плейсхолдеров}`, поэтому опечатку в ключе или забытый параметр видно при компиляции. Для новой локали достаточно добавить файл с теми же ключами рядом с `ru.ts` и выбрать его в `t.ts`.
+
+Стили — CSS-модули рядом с компонентами. Типы для них (`*.module.d.css.ts`) генерируются автоматически при `npm run dev` или командой `npm run css:types` и хранятся в репозитории.
