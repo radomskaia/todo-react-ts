@@ -3,6 +3,7 @@ declare const styles: {
   readonly "card": string;
   readonly "footer": string;
   readonly "heading": string;
+  readonly "sort": string;
   readonly "toolbar": string;
 };
 export = styles;

@@ -1,8 +1,10 @@
 import { readStorage, writeStorage } from '@/lib/storage.ts';
 
-import { type Todo } from './todo.ts';
+import { type Todo, type TodoSort, todoSorts } from './todo.ts';
 
 export const todosStorageKey = 'todo-react-ts:todos';
+
+export const todoSortStorageKey = 'todo-react-ts:sort';
 
 interface TypeofMap {
   string: string;
@@ -50,4 +52,18 @@ export function loadTodos(): Todo[] {
 
 export function saveTodos(todos: readonly Todo[]): void {
   writeStorage(todosStorageKey, JSON.stringify(todos));
+}
+
+function isTodoSort(value: unknown): value is TodoSort {
+  return typeof value === 'string' && (todoSorts as readonly string[]).includes(value);
+}
+
+export function loadTodoSort(): TodoSort {
+  const saved = readStorage(todoSortStorageKey);
+
+  return isTodoSort(saved) ? saved : 'date';
+}
+
+export function saveTodoSort(sort: TodoSort): void {
+  writeStorage(todoSortStorageKey, sort);
 }

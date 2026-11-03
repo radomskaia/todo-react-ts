@@ -1,7 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
 
 import { type Todo } from './todo.ts';
-import { loadTodos, saveTodos, todosStorageKey } from './todoStorage.ts';
+import {
+  loadTodos,
+  loadTodoSort,
+  saveTodos,
+  saveTodoSort,
+  todoSortStorageKey,
+  todosStorageKey,
+} from './todoStorage.ts';
 
 const todo: Todo = { id: '1', title: 'Задача', completed: false };
 
@@ -62,5 +69,23 @@ describe('todoStorage', () => {
       saveTodos([todo]);
     }).not.toThrow();
     expect(warn).toHaveBeenCalled();
+  });
+});
+
+describe('todo sort storage', () => {
+  it('sorts by date when nothing is saved', () => {
+    expect(loadTodoSort()).toBe('date');
+  });
+
+  it('reads back the saved sort', () => {
+    saveTodoSort('activeFirst');
+
+    expect(loadTodoSort()).toBe('activeFirst');
+  });
+
+  it('ignores an unknown saved sort', () => {
+    localStorage.setItem(todoSortStorageKey, 'random');
+
+    expect(loadTodoSort()).toBe('date');
   });
 });

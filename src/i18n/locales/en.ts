@@ -17,6 +17,11 @@ export const en = {
   'empty.active': 'No active tasks',
   'empty.completed': 'No completed tasks',
 
+  'sort.label': 'Sort',
+  'sort.date': 'By date added',
+  'sort.alphabet': 'Alphabetically',
+  'sort.activeFirst': 'Active first',
+
   'todo.remove': 'Delete task “{title}”',
 
   'settings.language': 'Language',

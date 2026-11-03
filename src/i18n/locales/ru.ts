@@ -15,6 +15,11 @@ export const ru = {
   'empty.active': 'Активных задач нет',
   'empty.completed': 'Выполненных задач нет',
 
+  'sort.label': 'Сортировка',
+  'sort.date': 'По дате добавления',
+  'sort.alphabet': 'По алфавиту',
+  'sort.activeFirst': 'Сначала активные',
+
   'todo.remove': 'Удалить задачу «{title}»',
 
   'settings.language': 'Язык',

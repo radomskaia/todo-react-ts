@@ -233,6 +233,87 @@ describe('App', () => {
     });
   });
 
+  describe('sorting', () => {
+    function getSortSelect() {
+      return screen.getByRole('combobox', { name: 'Сортировка' });
+    }
+
+    it('sorts by date added by default', async () => {
+      const { user } = renderApp();
+
+      await addTodo(user, 'Вторая по алфавиту');
+      await addTodo(user, 'Альфа');
+
+      expect(getSortSelect()).toHaveValue('date');
+      expect(getTodoTitles()).toEqual(['Вторая по алфавиту', 'Альфа']);
+    });
+
+    it('sorts alphabetically', async () => {
+      const { user } = renderApp();
+
+      await addTodo(user, 'Вторая');
+      await addTodo(user, 'Альфа');
+      await user.selectOptions(getSortSelect(), 'По алфавиту');
+
+      expect(getTodoTitles()).toEqual(['Альфа', 'Вторая']);
+    });
+
+    it('moves a todo when it is checked or unchecked with active first', async () => {
+      const { user } = renderApp();
+
+      await addTodo(user, 'Первая');
+      await addTodo(user, 'Вторая');
+      await addTodo(user, 'Третья');
+      await user.selectOptions(getSortSelect(), 'Сначала активные');
+
+      await user.click(screen.getByRole('checkbox', { name: 'Первая' }));
+
+      expect(getTodoTitles()).toEqual(['Вторая', 'Третья', 'Первая']);
+
+      await user.click(screen.getByRole('checkbox', { name: 'Первая' }));
+
+      expect(getTodoTitles()).toEqual(['Первая', 'Вторая', 'Третья']);
+    });
+
+    it('is offered only for all todos', async () => {
+      const { user } = renderApp();
+
+      await user.click(screen.getByRole('button', { name: 'Активные' }));
+
+      expect(
+        screen.queryByRole('combobox', { name: 'Сортировка' }),
+      ).not.toBeInTheDocument();
+
+      await user.click(screen.getByRole('button', { name: 'Все' }));
+
+      expect(getSortSelect()).toBeInTheDocument();
+    });
+
+    it('keeps the chosen sort when switching filters', async () => {
+      const { user } = renderApp();
+
+      await user.selectOptions(getSortSelect(), 'По алфавиту');
+      await user.click(screen.getByRole('button', { name: 'Выполненные' }));
+      await user.click(screen.getByRole('button', { name: 'Все' }));
+
+      expect(getSortSelect()).toHaveValue('alphabet');
+    });
+
+    it('keeps the chosen sort after a reload', async () => {
+      const { user, unmount } = renderApp();
+
+      await addTodo(user, 'Вторая');
+      await addTodo(user, 'Альфа');
+      await user.selectOptions(getSortSelect(), 'По алфавиту');
+      unmount();
+
+      renderApp();
+
+      expect(getSortSelect()).toHaveValue('alphabet');
+      expect(getTodoTitles()).toEqual(['Альфа', 'Вторая']);
+    });
+  });
+
   describe('language', () => {
     it('switches the interface to English and back', async () => {
       const { user } = renderApp();
