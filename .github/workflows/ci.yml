@@ -1,0 +1,101 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch cancels the run still in flight, except on
+# main: a run there may be publishing the site, and a half-cancelled deployment
+# leaves the Pages environment stuck.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Every check runs even when an earlier one fails, so a single run reports
+      # every problem instead of only the first.
+      - name: CSS Module typings are up to date
+        if: ${{ !cancelled() }}
+        run: npm run css:types:check
+
+      - name: Type check
+        if: ${{ !cancelled() }}
+        run: npm run typecheck
+
+      - name: Lint
+        if: ${{ !cancelled() }}
+        run: npm run lint
+
+      - name: Stylelint
+        if: ${{ !cancelled() }}
+        run: npm run stylelint
+
+      - name: Format check
+        if: ${{ !cancelled() }}
+        run: npm run format:check
+
+      - name: Unused files, exports and dependencies
+        if: ${{ !cancelled() }}
+        run: npm run knip
+
+      - name: Test with coverage
+        if: ${{ !cancelled() }}
+        run: npm run test:coverage
+
+      - name: Build
+        if: ${{ !cancelled() }}
+        run: npm run build
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}/
+
+      # Only a push to main produces something to publish. `success()` is spelled
+      # out on purpose: a custom `if` replaces the implicit success check, and
+      # without it a failed lint would still ship a build.
+      - name: Upload the site
+        if: ${{ success() && github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist
+
+  deploy:
+    needs: verify
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      pages: write
+      id-token: write
+
+    # A deployment already under way is allowed to finish instead of being
+    # cancelled by the next one.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deploy
+        uses: actions/deploy-pages@v5
