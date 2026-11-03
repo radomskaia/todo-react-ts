@@ -2,6 +2,7 @@ import { useState } from 'react';
 
 import { useTranslation } from '@/i18n/i18nContext.ts';
 import { LanguageSwitcher } from '@/i18n/LanguageSwitcher.tsx';
+import { ThemeSwitcher } from '@/theme/ThemeSwitcher.tsx';
 import { filterTodos, type TodoFilter } from '@/todos/todo.ts';
 import { TodoFilters } from '@/todos/TodoFilters.tsx';
 import { TodoForm } from '@/todos/TodoForm.tsx';
@@ -20,6 +21,7 @@ export function App() {
     <main className={styles.app}>
       <div className={styles.toolbar}>
         <LanguageSwitcher />
+        <ThemeSwitcher />
       </div>
       <h1 className={styles.heading}>{t('app.title')}</h1>
       <section className={styles.card}>

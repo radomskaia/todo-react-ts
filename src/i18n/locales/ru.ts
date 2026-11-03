@@ -18,4 +18,9 @@ export const ru = {
   'todo.remove': 'Удалить задачу «{title}»',
 
   'settings.language': 'Язык',
+  'settings.theme': 'Тема',
+
+  'theme.light': 'Светлая',
+  'theme.dark': 'Тёмная',
+  'theme.system': 'Системная',
 } as const;

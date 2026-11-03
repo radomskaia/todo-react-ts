@@ -20,4 +20,9 @@ export const en = {
   'todo.remove': 'Delete task “{title}”',
 
   'settings.language': 'Language',
+  'settings.theme': 'Theme',
+
+  'theme.light': 'Light',
+  'theme.dark': 'Dark',
+  'theme.system': 'System',
 } satisfies Messages;
